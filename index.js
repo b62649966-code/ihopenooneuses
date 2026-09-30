@@ -2,21 +2,21 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3551;
 
+// 🛠️ FIX: Forces the server to decode both JSON and standard Form/UrlEncoded text formats sent by the game client
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// 🔍 ADVANCED CLOUD TELEMETRY LOGGER (Pushes logs directly to Render Console)
+// 🔍 UPGRADED CLOUD TELEMETRY LOGGER (Pushes detailed logs straight to your Render Dashboard web terminal)
 app.use((req, res, next) => {
     console.log(`\n================== [CLOUD TRAFFIC DETECTED] ==================`);
-    console.log(`[TIME]: ${new Date().toISOString()}`);
-    console.log(`[METHOD/ROUTE]: ${req.method} -> ${req.url}`);
-    console.log(`[CLIENT IP]: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}`);
-    console.log(`[USER-AGENT]: ${req.headers['user-agent']}`);
+    console.log(`[ROUTE]: ${req.method} -> ${req.url}`);
+    console.log(`[HEADERS]:`, JSON.stringify(req.headers, null, 2));
     
     if (Object.keys(req.query).length > 0) {
-        console.log(`[URL QUERY CONSTANTS]:`, JSON.stringify(req.query, null, 2));
+        console.log(`[URL QUERY]:`, JSON.stringify(req.query, null, 2));
     }
     if (req.body && Object.keys(req.body).length > 0) {
-        console.log(`[INCOMING DATA PAYLOAD]:`, JSON.stringify(req.body, null, 2));
+        console.log(`[INCOMING PAYLOAD]:`, JSON.stringify(req.body, null, 2));
     }
     console.log(`==============================================================`);
     next();
@@ -39,7 +39,7 @@ app.post('/account/api/oauth/token', (req, res) => {
 // 2. PROFILE ENGINE (SYNC LOCKER ASSETS)
 app.post('/fortnite/api/game/v2/profile/:accountId/client/:command', (req, res) => {
     const profileId = req.query.profileId || "athena";
-    console.log(`[CLOUD-PROFILE] Engine processing profile adjustments for: "${profileId}"`);
+    console.log(`[CLOUD-PROFILE] Processing profile adjustments for: "${profileId}"`);
     
     if (profileId === "athena") {
         return res.json({
@@ -68,7 +68,7 @@ app.post('/fortnite/api/game/v2/profile/:accountId/client/:command', (req, res) 
 
 // 3. MULTIPLAYER MATCHMAKING ROUTER
 app.get('/fortnite/api/matchmaking/session/matchMakingRequest', (req, res) => {
-    console.log(`[CLOUD-MATCHMAKER] Intercepting game matchmaking queue initialization loop...`);
+    console.log(`[CLOUD-MATCHMAKER] Intercepting game matchmaking queue...`);
     res.json({
         id: "CloudMultiplayerSessionID",
         region: "NAE",
@@ -80,9 +80,9 @@ app.get('/fortnite/api/matchmaking/session/matchMakingRequest', (req, res) => {
     });
 });
 
-// 🛠️ 4. GLOBAL CATCH-ALL ROUTE (Catches any version check/hotfix routes and logs them explicitly to cloud)
+// 🛠️ 4. GLOBAL CATCH-ALL ROUTE (Prevents game crashes by responding to unhandled endpoints safely)
 app.use((req, res) => {
-    console.log(`[CLOUD CATCH-ALL] Game hit unhandled path: [${req.method}] ${req.url} -> Returning safe fallback layout.`);
+    console.log(`[CLOUD CATCH-ALL] Game hit unhandled path: [${req.method}] ${req.url}`);
     res.status(200).json({});
 });
 
@@ -91,5 +91,4 @@ app.listen(PORT, () => {
     console.log(`     LIVE FORTNITE CLOUD SERVER MANAGEMENT RUNTIME      `);
     console.log(`========================================================`);
     console.log(`[SUCCESS] Cloud server is fully active on port: ${PORT}`);
-    console.log(`[INFO] Telemetry active. All game requests will stream below.`);
 });
