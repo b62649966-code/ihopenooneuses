@@ -4,27 +4,35 @@ const PORT = process.env.PORT || 3551;
 
 app.use(express.json());
 
-// Secure Logging Filter to track inbound connections
+// 🔍 REAL-TIME TRAFFIC TELEMETRY INSPECTOR
 app.use((req, res, next) => {
-    console.log(`[CLOUD CAPTURE] Link processing: ${req.method} ${req.url}`);
+    console.log(`\n================== [INCOMING TRAFFIC] ==================`);
+    console.log(`[ROUTE]: ${req.method} -> ${req.url}`);
+    if (Object.keys(req.body).length > 0) {
+        console.log(`[PAYLOAD]:`, JSON.stringify(req.body, null, 2));
+    }
+    console.log(`========================================================`);
     next();
 });
 
-// Universal Handshake Endpoint: Resolves initial client verification checks
+// 1. HANDSHAKE AUTHORIZATION ENDPOINT
 app.post('/account/api/oauth/token', (req, res) => {
+    const requestedUser = req.body.username || "CloudPlayer";
+    console.log(`[AUTH] Generating live validation token handshake for user: "${requestedUser}"`);
     res.json({
-        access_token: "secured_cloud_token_string_generation",
+        access_token: "secured_cloud_session_token_string",
         expires_in: 28800,
         token_type: "bearer",
-        account_id: "CloudPlayer1",
+        account_id: requestedUser,
         client_id: "fn",
-        displayName: "CloudPlayer"
+        displayName: requestedUser
     });
 });
 
-// Secure Athena Engine Endpoint: Automatically handles requests regardless of protocol variants
-const handleProfileRequest = (req, res) => {
+// 2. PROFILE ENGINE (UNBRONKENS PEDESTALS & SYNC LOCKER ASSETS)
+app.post('/fortnite/api/game/v2/profile/:accountId/client/:command', (req, res) => {
     const profileId = req.query.profileId || "athena";
+    console.log(`[PROFILE] Game client requested data container for: "${profileId}"`);
     
     if (profileId === "athena") {
         return res.json({
@@ -34,12 +42,37 @@ const handleProfileRequest = (req, res) => {
             profileChanges: [{
                 changeType: "fullProfileUpdate",
                 profile: {
-                    accountId: req.params.accountId || "CloudPlayer1",
+                    accountId: req.params.accountId,
                     profileId: "athena",
                     items: {
+                        // Default Skin Setup
+                        "CID_001_Athena_Commando_M_Default": {
+                            templateId: "AthenaCharacter:cid_001_athena_commando_m_default",
+                            attributes: { favorite: true },
+                            quantity: 1
+                        },
+                        // Renegade Raider Skin
                         "CID_028_Athena_Commando_F_Scarecrow": {
                             templateId: "AthenaCharacter:cid_028_athena_commando_f_scarecrow",
-                            attributes: { favorite: true },
+                            attributes: { favorite: false },
+                            quantity: 1
+                        },
+                        // Galaxy Skin
+                        "CID_050_Athena_Commando_M_Galaxy": {
+                            templateId: "AthenaCharacter:cid_050_athena_commando_m_galaxy",
+                            attributes: { favorite: false },
+                            quantity: 1
+                        },
+                        // Black Knight Skin
+                        "CID_035_Athena_Commando_M_BlackKnight": {
+                            templateId: "AthenaCharacter:cid_035_athena_commando_m_blackknight",
+                            attributes: { favorite: false },
+                            quantity: 1
+                        },
+                        // iKONIK Skin
+                        "CID_313_Athena_Commando_M_KPopCavalry": {
+                            templateId: "AthenaCharacter:cid_313_athena_commando_m_kpopcavalry",
+                            attributes: { favorite: false },
                             quantity: 1
                         }
                     },
@@ -48,23 +81,24 @@ const handleProfileRequest = (req, res) => {
                             level: 100,
                             xp: 0,
                             vbucks_balance: 999999,
-                            season_match_boost: 100
+                            season_match_boost: 50,
+                            loadout_presets: {}
                         }
                     }
                 }
             }]
         });
     }
+    
+    // Default fallback container for alternative tabs (Creative, Save the world, etc)
     res.json({ profileRevision: 1, profileId: profileId, profileChanges: [] });
-};
+});
 
-// Map the profile data router across both secure and regular network targets
-app.post('/fortnite/api/game/v2/profile/:accountId/client/:command', handleProfileRequest);
-app.all('/fortnite/api/game/v2/profile/*', handleProfileRequest);
-
+// 3. MULTIPLAYER MATCHMAKING RESPONSE ROUTER
 app.get('/fortnite/api/matchmaking/session/matchMakingRequest', (req, res) => {
+    console.log(`[MATCHMAKER] Intercepting active client matchmaking queue initialization loop...`);
     res.json({
-        id: "LiveMultiplayerSessionID",
+        id: "CloudMultiplayerSessionID",
         region: "NAE",
         titleId: "Fortnite",
         setting: { CUSTOM_GAME_CODE: "PLAY" },
@@ -75,8 +109,8 @@ app.get('/fortnite/api/matchmaking/session/matchMakingRequest', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`==================================================`);
-    console.log(`     SECURE CLOUD FORTNITE MULTIPLAYER RE-ROUTE   `);
-    console.log(`==================================================`);
-    console.log(`[SUCCESS] Cloud server is fully optimized on port ${PORT}!`);
+    console.log(`========================================================`);
+    console.log(`     LIVE FORTNITE CLOUD SERVER MANAGEMENT RUNTIME      `);
+    console.log(`========================================================`);
+    console.log(`[SUCCESS] Backend pipeline online! Active on port: ${PORT}`);
 });
